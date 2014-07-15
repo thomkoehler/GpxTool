@@ -5,12 +5,11 @@
 module XmlParser where
 
 import Prelude hiding(FilePath, readFile)
-import Data.Text(Text)
 import Data.Maybe(fromMaybe)
 import Text.XML
 import Text.Printf(printf)
 import Filesystem.Path.CurrentOS(FilePath)
-import Data.List(foldl')
+import Data.Text(unpack, Text)
 
 import qualified Data.Map as M
 
@@ -26,30 +25,72 @@ parseFile path = do
 
 gpxName :: Text -> Name
 gpxName localName = Name localName (Just "http://www.topografix.com/GPX/1/1") Nothing
+
+gpxxName :: Text -> Name
+gpxxName localName = Name localName (Just "http://www.garmin.com/xmlschemas/GpxExtensions/v3") Nothing
    
+
+textToDouble :: Text -> Double
+textToDouble = read . unpack
+
+
+parseRoutePoint :: Element -> RoutePoint
+parseRoutePoint routePointElem =
+   RoutePoint
+   {
+      rteptLat = textToDouble $ lookupAttr "lat" routePointElem,
+      rteptLon = textToDouble $ lookupAttr "lon" routePointElem,
+      rteptExtensions = fmap parseExtensions $ lookupChildElement (gpxName "extensions") routePointElem
+   } 
+
+parseExtensions :: Element -> Extensions
+parseExtensions extensionsElement =
+   Extensions
+   { 
+      extRoutePointExtension = parseRoutePointExtension $ 
+         lookupChildElement1 (gpxxName "RoutePointExtension") extensionsElement
+   }  
+   
+parseRoutePointExtension :: Element -> RoutePointExtension
+parseRoutePointExtension routePointExtensionElement = 
+   RoutePointExtension
+   {
+      rpePoints = map parseExtensionRoutePoint $ lookupChildElements (gpxxName "rpt") routePointExtensionElement
+   }
+
+
+parseExtensionRoutePoint :: Element -> ExtensionRoutePoint
+parseExtensionRoutePoint extensionRoutePointElement =
+   ExtensionRoutePoint
+   {
+      erpLat = textToDouble $ lookupAttr "lat" extensionRoutePointElement,
+      erpLon = textToDouble $ lookupAttr "lon" extensionRoutePointElement
+   }   
+
 
 parseRoute :: Element -> Route
 parseRoute routeElem = 
    Route 
    { 
       rteName = lookupChildContent (gpxName "name") routeElem, 
-      rtePoints = [] 
+      rtePoints = map parseRoutePoint $ lookupChildElements (gpxName "rtept") routeElem
    }
+
 
 parseGpx :: Element -> Gpx
 parseGpx gpxElem = 
    Gpx
    { 
-      gpxRoute = parseRoute $ lookupChildElement1 (gpxName "rte") gpxElem
+      gpxRoute = map parseRoute $ lookupChildElements (gpxName "rte") gpxElem
    }
 
 
-elemAttr :: Name -> Element -> Text
-elemAttr name elem = 
+lookupAttr :: Name -> Element -> Text
+lookupAttr name element = 
    let 
       msg = printf "Attribute '%s' not found." $ show name
    in
-      fromMaybe (error msg) $ M.lookup name $ elementAttributes elem
+      fromMaybe (error msg) $ M.lookup name $ elementAttributes element
       
       
 lookupChildElements :: Name -> Element -> [Element]

@@ -3,7 +3,11 @@
 module Gpx
 (
    Gpx(..),
-   Route(..)
+   Route(..),
+   RoutePoint(..),
+   Extensions(..),
+   RoutePointExtension(..),
+   ExtensionRoutePoint(..)
 )
 where
 
@@ -15,7 +19,7 @@ import Data.Text(Text)
 
 data Gpx = Gpx
    {
-      gpxRoute :: Route
+      gpxRoute :: [Route]
    }
    deriving(Show)
 
@@ -31,8 +35,32 @@ data Route = Route
 data RoutePoint = RoutePoint
    {
       rteptLat :: Double,
-      rteptLon :: Double
+      rteptLon :: Double,
+      rteptExtensions :: Maybe Extensions 
    }
    deriving(Show)
 
+
+data Extensions = Extensions
+   {
+      extRoutePointExtension :: RoutePointExtension
+   } 
+   deriving(Show)
+   
+   
+data RoutePointExtension = RoutePointExtension
+   {
+      rpePoints :: [ExtensionRoutePoint] 
+   }
+   deriving(Show)
+
+
+data ExtensionRoutePoint = ExtensionRoutePoint
+   {
+      erpLat :: Double,
+      erpLon :: Double
+   }
+   deriving(Show)
+   
+  
 -----------------------------------------------------------------------------------------------------------------------
