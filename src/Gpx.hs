@@ -16,7 +16,6 @@ where
 -----------------------------------------------------------------------------------------------------------------------
 
 import Data.Text(Text)
-import Data.Data
 
 -----------------------------------------------------------------------------------------------------------------------
 
@@ -40,7 +39,7 @@ data Point = Point
       lat :: Double,
       lon :: Double
    } 
-   deriving(Show, Data, Typeable)
+   deriving(Show)
    
 
 data RoutePoint = RoutePoint
@@ -55,13 +54,30 @@ data Extensions = Extensions
    {
       extRoutePointExtension :: RoutePointExtension
    } 
-   deriving(Show, Data, Typeable)
+   deriving(Show)
    
    
 data RoutePointExtension = RoutePointExtension
    {
       rpePoints :: [Point] 
    }
-   deriving(Show, Data, Typeable)
+   deriving(Show)
 
 -----------------------------------------------------------------------------------------------------------------------
+
+class PointContainer pc where
+   getPoints :: pc -> [Point]
+   
+instance PointContainer RoutePointExtension where
+   getPoints = rpePoints
+   
+instance PointContainer Extensions where
+   getPoints = getPoints . extRoutePointExtension
+
+flattenPoints :: RoutePoint -> RoutePoint
+flattenPoints (RoutePoint ps ex) = 
+   let
+      allPoints = ps : getPoints ex
+   in
+      RoutePoint { rteptPoint = allPoints, rteptExtensions = ex }
+
