@@ -34,12 +34,19 @@ textToDouble :: Text -> Double
 textToDouble = read . unpack
 
 
+parsePoint :: Element -> Point
+parsePoint element = 
+   Point 
+   {
+      lat = textToDouble $ lookupAttr "lat" element,
+      lon = textToDouble $ lookupAttr "lon" element
+   }
+
 parseRoutePoint :: Element -> RoutePoint
 parseRoutePoint routePointElem =
    RoutePoint
    {
-      rteptLat = textToDouble $ lookupAttr "lat" routePointElem,
-      rteptLon = textToDouble $ lookupAttr "lon" routePointElem,
+      rteptPoint = parsePoint routePointElem,
       rteptExtensions = fmap parseExtensions $ lookupChildElement (gpxName "extensions") routePointElem
    } 
 
@@ -55,18 +62,8 @@ parseRoutePointExtension :: Element -> RoutePointExtension
 parseRoutePointExtension routePointExtensionElement = 
    RoutePointExtension
    {
-      rpePoints = map parseExtensionRoutePoint $ lookupChildElements (gpxxName "rpt") routePointExtensionElement
+      rpePoints = map parsePoint $ lookupChildElements (gpxxName "rpt") routePointExtensionElement
    }
-
-
-parseExtensionRoutePoint :: Element -> ExtensionRoutePoint
-parseExtensionRoutePoint extensionRoutePointElement =
-   ExtensionRoutePoint
-   {
-      erpLat = textToDouble $ lookupAttr "lat" extensionRoutePointElement,
-      erpLon = textToDouble $ lookupAttr "lon" extensionRoutePointElement
-   }   
-
 
 parseRoute :: Element -> Route
 parseRoute routeElem = 

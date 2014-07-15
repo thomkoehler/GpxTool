@@ -1,5 +1,7 @@
 -----------------------------------------------------------------------------------------------------------------------
 
+{-# LANGUAGE DeriveDataTypeable #-}
+
 module Gpx
 (
    Gpx(..),
@@ -7,13 +9,14 @@ module Gpx
    RoutePoint(..),
    Extensions(..),
    RoutePointExtension(..),
-   ExtensionRoutePoint(..)
+   Point(..)
 )
 where
 
 -----------------------------------------------------------------------------------------------------------------------
 
 import Data.Text(Text)
+import Data.Data
 
 -----------------------------------------------------------------------------------------------------------------------
 
@@ -32,10 +35,17 @@ data Route = Route
    deriving(Show)
 
 
+data Point = Point
+   {
+      lat :: Double,
+      lon :: Double
+   } 
+   deriving(Show, Data, Typeable)
+   
+
 data RoutePoint = RoutePoint
    {
-      rteptLat :: Double,
-      rteptLon :: Double,
+      rteptPoint :: Point,
       rteptExtensions :: Maybe Extensions 
    }
    deriving(Show)
@@ -45,22 +55,13 @@ data Extensions = Extensions
    {
       extRoutePointExtension :: RoutePointExtension
    } 
-   deriving(Show)
+   deriving(Show, Data, Typeable)
    
    
 data RoutePointExtension = RoutePointExtension
    {
-      rpePoints :: [ExtensionRoutePoint] 
+      rpePoints :: [Point] 
    }
-   deriving(Show)
+   deriving(Show, Data, Typeable)
 
-
-data ExtensionRoutePoint = ExtensionRoutePoint
-   {
-      erpLat :: Double,
-      erpLon :: Double
-   }
-   deriving(Show)
-   
-  
 -----------------------------------------------------------------------------------------------------------------------
