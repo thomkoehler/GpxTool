@@ -1,7 +1,5 @@
 -----------------------------------------------------------------------------------------------------------------------
 
-{-# LANGUAGE DeriveDataTypeable #-}
-
 module Gpx
 (
    Gpx(..),
@@ -9,7 +7,8 @@ module Gpx
    RoutePoint(..),
    Extensions(..),
    RoutePointExtension(..),
-   Point(..)
+   Point(..),
+   reverseRoute
 )
 where
 
@@ -38,7 +37,7 @@ instance PointContainer pc => PointContainer (Maybe pc) where
 
 data Gpx = Gpx
    {
-      gpxRoute :: [Route]
+      gpxRoutes :: [Route]
    }
    deriving(Show)
 
@@ -88,5 +87,25 @@ instance PointContainer RoutePointExtension where
 -----------------------------------------------------------------------------------------------------------------------
 
 reverseRoute :: Route -> Route
-reverseRoute (Route name pts) = Route name $ reverseRoutePoint rpts
+reverseRoute (Route name pts) = Route name $ reverse $ map reverseRoutePoint pts
+
+reverseRoutePoint :: RoutePoint -> RoutePoint
+reverseRoutePoint rp@(RoutePoint _ Nothing) = rp
+reverseRoutePoint rp = 
+   let
+      (p : ps) = points rp
+   in
+      RoutePoint
+      {
+         rteptPoint = p,
+         rteptExtensions = Just Extensions
+            {
+               extRoutePointExtension = RoutePointExtension
+                  {
+                     rpePoints = ps
+                  }
+            }
+      }
+    
  
+-----------------------------------------------------------------------------------------------------------------------

@@ -10,6 +10,7 @@ import Text.XML
 import Text.Printf(printf)
 import Filesystem.Path.CurrentOS(FilePath)
 import Data.Text(unpack, Text)
+import Control.Applicative
 
 import qualified Data.Map as M
 
@@ -47,7 +48,7 @@ parseRoutePoint routePointElem =
    RoutePoint
    {
       rteptPoint = parsePoint routePointElem,
-      rteptExtensions = fmap parseExtensions $ lookupChildElement (gpxName "extensions") routePointElem
+      rteptExtensions = parseExtensions <$> lookupChildElement (gpxName "extensions") routePointElem
    } 
 
 parseExtensions :: Element -> Extensions
@@ -78,7 +79,7 @@ parseGpx :: Element -> Gpx
 parseGpx gpxElem = 
    Gpx
    { 
-      gpxRoute = map parseRoute $ lookupChildElements (gpxName "rte") gpxElem
+      gpxRoutes = map parseRoute $ lookupChildElements (gpxName "rte") gpxElem
    }
 
 
