@@ -8,6 +8,8 @@ module XmlGen(renderGpx) where
 import qualified Data.Map as M
 import Text.XML
 import Text.Hamlet.XML
+import Text.Printf(printf)
+import Data.Text(Text, pack)
 import qualified Data.ByteString.Lazy as B
 
 import Gpx
@@ -21,6 +23,8 @@ xmlGpx gpx = Element "gpx" M.empty
          <rte>
             $maybe name <- rteName route 
                <name>#{name}
+            $forall point <- rtePoints route 
+               <rtept lat=#{pack (show (lat (rteptPoint point)))} lon=#{pack (show (lon (rteptPoint point)))}">
    |]
 
 
