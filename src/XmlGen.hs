@@ -3,11 +3,12 @@
 
 {-# LANGUAGE OverloadedStrings, QuasiQuotes #-}
 
-module XmlGen where
+module XmlGen(renderGpx) where
 
 import qualified Data.Map as M
 import Text.XML
 import Text.Hamlet.XML
+import qualified Data.ByteString.Lazy as B
 
 import Gpx
 
@@ -19,7 +20,14 @@ xmlGpx gpx = Element "gpx" M.empty
       $forall route <- gpxRoutes gpx
          <rte>
             $maybe name <- rteName route 
-               <name>{rteName route}
+               <name>#{name}
    |]
+
+
+renderGpx :: Prologue -> [Miscellaneous] -> Gpx -> B.ByteString
+renderGpx prologue epilogue gpx = renderLBS def (Document prologue elem epilogue)
+   where 
+      elem = xmlGpx gpx
+
 
 -----------------------------------------------------------------------------------------------------------------------

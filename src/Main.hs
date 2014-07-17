@@ -3,16 +3,20 @@
 
 module Main where
 
+
+import Text.XML
+import Filesystem.Path.CurrentOS(fromText)
+import qualified Data.ByteString.Lazy as B
+import System.IO(stdout)
+
 import XmlParser
 import XmlGen
 
-import Filesystem.Path.CurrentOS(fromText)
-
-
 main :: IO ()
 main = do
-   route <- parseFile $ fromText "Route1.gpx"
-   print $ xmlGpx route
+   (route, doc) <- parseFile $ fromText "Route1.gpx"
+   let bs = renderGpx (documentPrologue doc) (documentEpilogue doc) route
+   B.hPut stdout bs
    return ()
 
    

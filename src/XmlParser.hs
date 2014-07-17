@@ -18,10 +18,10 @@ import Gpx
 
 -----------------------------------------------------------------------------------------------------------------------
 
-parseFile :: FilePath -> IO Gpx
+parseFile :: FilePath -> IO (Gpx, Document)
 parseFile path = do
-   Document _ root _ <- readFile def path
-   return $ parseGpx root
+   doc@(Document _ root _) <- readFile def path
+   return $ (parseGpx root, doc)
 
 
 gpxName :: Text -> Name
