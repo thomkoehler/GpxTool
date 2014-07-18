@@ -15,7 +15,7 @@ import XmlGen
 main :: IO ()
 main = do
    (route, doc) <- parseFile $ fromText "Route1.gpx"
-   let bs = renderGpx (documentPrologue doc) (documentEpilogue doc) route
+   let bs = renderGpx True (documentPrologue doc) (documentEpilogue doc) route
    B.hPut stdout bs
    return ()
 
