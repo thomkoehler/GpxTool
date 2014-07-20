@@ -19,5 +19,6 @@ executable GpxTool
   other-modules:   
                    Gpx,
                    XmlParser,
-                   XmlGen
+                   XmlGen,
+                   Options
 
