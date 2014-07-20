@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------------------------------------------------------
 
-module Options(options) where
+module Options(options, Flag(..)) where
 
 import System.Console.GetOpt
 
@@ -10,7 +10,7 @@ data Flag
    = Flatten
    | Reverse
    | Info
-   deriving(Show)
+   deriving(Show, Eq)
    
    
 optionDefs :: [OptDescr Flag]
@@ -22,10 +22,10 @@ optionDefs =
    ]
 
 
-options :: [String] -> IO ([Flag], String)
+options :: [String] -> ([Flag], String)
 options args = 
    case getOpt Permute optionDefs args of
-      (o, (file : _), []) -> return (o, file)
+      (o, (file : _), []) -> (o, file)
       _                   -> error $ usageInfo header optionDefs
    where 
       header = "Usage: GpxTool [OPTION...] file"

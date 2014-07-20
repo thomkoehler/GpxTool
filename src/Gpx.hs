@@ -1,5 +1,7 @@
 -----------------------------------------------------------------------------------------------------------------------
 
+{-# LANGUAGE OverloadedStrings #-}
+
 module Gpx
 (
    Gpx(..),
@@ -8,13 +10,13 @@ module Gpx
    Extensions(..),
    RoutePointExtension(..),
    Point(..),
-   reverseRoute
+   reverseGpx
 )
 where
 
 -----------------------------------------------------------------------------------------------------------------------
 
-import Data.Text(Text)
+import Data.Text(Text, append)
 
 -----------------------------------------------------------------------------------------------------------------------
 
@@ -86,8 +88,11 @@ instance PointContainer RoutePointExtension where
 
 -----------------------------------------------------------------------------------------------------------------------
 
+reverseGpx :: Gpx -> Gpx
+reverseGpx (Gpx routes) = Gpx $ map reverseRoute routes
+
 reverseRoute :: Route -> Route
-reverseRoute (Route name pts) = Route name $ reverse $ map reverseRoutePoint pts
+reverseRoute (Route name pts) = Route (fmap (append "_revers") name) $ reverse $ map reverseRoutePoint pts
 
 reverseRoutePoint :: RoutePoint -> RoutePoint
 reverseRoutePoint rp@(RoutePoint _ Nothing) = rp
