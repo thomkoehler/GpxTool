@@ -10,13 +10,18 @@ module Gpx
    Extensions(..),
    RoutePointExtension(..),
    Point(..),
-   reverseGpx
+   printGpxInfo,
+   reverseGpx,
+   flattenGpx
 )
 where
 
 -----------------------------------------------------------------------------------------------------------------------
 
-import Data.Text(Text, append)
+import Control.Monad(replicateM_, forM_)
+import Text.Printf(printf)
+import Data.Maybe(fromMaybe)
+import Data.Text(unpack, Text, append)
 
 -----------------------------------------------------------------------------------------------------------------------
 
@@ -37,11 +42,22 @@ instance PointContainer pc => PointContainer (Maybe pc) where
    points (Just p) = points p
 
 
+class PrintInfo pi where
+   printInfo :: Int -> pi -> IO ()
+
+
 data Gpx = Gpx
    {
       gpxRoutes :: [Route]
    }
    deriving(Show)
+
+
+instance PrintInfo Gpx where
+   printInfo indent gpx = do
+      replicateM_ indent $ putChar ' '
+      _ <- printf "gpx contains %d route(s)\n" $ length $ gpxRoutes gpx 
+      forM_ (gpxRoutes gpx) $ printInfo 1
 
 
 data Route = Route
@@ -51,8 +67,16 @@ data Route = Route
    }
    deriving(Show)
 
+
 instance PointContainer Route where
    points (Route _ ps) = concatMap points ps
+
+  
+instance PrintInfo Route where
+   printInfo indent (Route name _) = do
+      replicateM_ indent $ putChar ' '
+      _ <- printf "route name '%s'\n" $ unpack $ fromMaybe "" name
+      return ()
   
 
 data RoutePoint = RoutePoint
@@ -88,11 +112,19 @@ instance PointContainer RoutePointExtension where
 
 -----------------------------------------------------------------------------------------------------------------------
 
-reverseGpx :: Gpx -> Gpx
-reverseGpx (Gpx routes) = Gpx $ map reverseRoute routes
+printGpxInfo :: Gpx -> IO ()
+printGpxInfo = printInfo 0
 
-reverseRoute :: Route -> Route
-reverseRoute (Route name pts) = Route (fmap (append "_revers") name) $ reverse $ map reverseRoutePoint pts
+changeGpx :: (Text -> Text) -> ([RoutePoint] -> [RoutePoint]) -> Gpx -> Gpx
+changeGpx routeNameChange routePointChange (Gpx routes) = Gpx $ map (changePoints .changeName) routes
+   where
+      changeName (Route n p) = Route (fmap routeNameChange n) p
+      changePoints (Route n p) = Route n $ routePointChange p
+    
+
+reverseGpx :: Gpx -> Gpx
+reverseGpx = changeGpx (append "_reverse") $ map reverseRoutePoint  
+
 
 reverseRoutePoint :: RoutePoint -> RoutePoint
 reverseRoutePoint rp@(RoutePoint _ Nothing) = rp
@@ -111,6 +143,15 @@ reverseRoutePoint rp =
                   }
             }
       }
-    
+ 
+
+flattenGpx :: Gpx -> Gpx
+flattenGpx = changeGpx (append "_flatten") $ concatMap flattenRoutePoint  
+   
+   
+flattenRoutePoint :: RoutePoint -> [RoutePoint]
+flattenRoutePoint (RoutePoint pt ext) = RoutePoint pt Nothing : map mkrp (points ext)
+   where
+      mkrp p = RoutePoint p Nothing
  
 -----------------------------------------------------------------------------------------------------------------------

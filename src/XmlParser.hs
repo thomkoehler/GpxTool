@@ -21,7 +21,7 @@ import Gpx
 parseFile :: FilePath -> IO (Gpx, Document)
 parseFile path = do
    doc@(Document _ root _) <- readFile def path
-   return $ (parseGpx root, doc)
+   return (parseGpx root, doc)
 
 
 gpxName :: Text -> Name

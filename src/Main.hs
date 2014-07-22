@@ -5,10 +5,12 @@
 module Main(main) where
 
 import Text.XML
-import Filesystem.Path.CurrentOS(fromText)
+import Data.Text.Internal()
+import Data.String
 import System.Environment(getArgs)
 import Control.Monad(when)
 import System.FilePath(takeBaseName, replaceBaseName)
+import Text.Printf
 
 import XmlParser
 import XmlGen
@@ -21,19 +23,31 @@ main :: IO ()
 main = do
    args <- getArgs
    let (ops, inFile) = options args
-   when (elem Reverse ops) $ reverseFile inFile $ appendBaseName "_reverse" inFile
+   when (Reverse `elem` ops) $ 
+      transformFile reverseGpx inFile $ appendBaseName "_reverse" inFile
+      
+   when (Flatten `elem` ops) $
+      transformFile reverseGpx inFile $ appendBaseName "_flatten" inFile
+      
+      
+   when (Info `elem` ops) $ do
+      (gpx, _) <- parseFile $ fromString inFile
+      printGpxInfo gpx
+      
+      
    return ()
 
 
-reverseFile :: String -> String -> IO ()
-reverseFile inFile outFile = do
-   (route, doc) <- parseFile $ fromText $ read inFile
-   let rr = reverseGpx route
-   writeGpx False (documentPrologue doc) (documentEpilogue doc) (fromText (read outFile)) rr
+transformFile :: (Gpx -> Gpx) -> String -> String -> IO ()
+transformFile transFun inFile outFile = do
+   (gpx, doc) <- parseFile $ fromString inFile
+   let tgpx = transFun gpx
+   writeGpx False (documentPrologue doc) (documentEpilogue doc) (fromString outFile) tgpx
+   _ <- printf "File '%s' created." outFile
    return ()
 
 
 appendBaseName :: String -> String -> String
-appendBaseName postfix baseName = replaceBaseName baseName $ (takeBaseName baseName) ++ postfix 
+appendBaseName postfix baseName = replaceBaseName baseName $ takeBaseName baseName ++ postfix 
 
 -----------------------------------------------------------------------------------------------------------------------

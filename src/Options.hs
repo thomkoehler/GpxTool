@@ -25,7 +25,7 @@ optionDefs =
 options :: [String] -> ([Flag], String)
 options args = 
    case getOpt Permute optionDefs args of
-      (o, (file : _), []) -> (o, file)
+      (o, file : _, []) -> (o, file)
       _                   -> error $ usageInfo header optionDefs
    where 
       header = "Usage: GpxTool [OPTION...] file"
