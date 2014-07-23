@@ -7,18 +7,18 @@ import System.Console.GetOpt
 -----------------------------------------------------------------------------------------------------------------------
 
 data Flag 
-   = Flatten
-   | Reverse
-   | Info
+   = FlagFlatten
+   | FlagReverse
+   | FlagInfo
    deriving(Show, Eq)
    
    
 optionDefs :: [OptDescr Flag]
 optionDefs = 
    [
-      Option "f" ["flatten"] (NoArg Flatten) "flatten",
-      Option "r" ["reverse"] (NoArg Reverse) "reverse",
-      Option "i" ["info"] (NoArg Info) "info"
+      Option "f" ["flatten"] (NoArg FlagFlatten) "flatten",
+      Option "r" ["reverse"] (NoArg FlagReverse) "reverse",
+      Option "i" ["info"] (NoArg FlagInfo) "info"
    ]
 
 

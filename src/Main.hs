@@ -23,14 +23,14 @@ main :: IO ()
 main = do
    args <- getArgs
    let (ops, inFile) = options args
-   when (Reverse `elem` ops) $ 
+   when (FlagReverse `elem` ops) $ 
       transformFile reverseGpx inFile $ appendBaseName "_reverse" inFile
       
-   when (Flatten `elem` ops) $
+   when (FlagFlatten `elem` ops) $
       transformFile reverseGpx inFile $ appendBaseName "_flatten" inFile
       
       
-   when (Info `elem` ops) $ do
+   when (FlagInfo `elem` ops) $ do
       (gpx, _) <- parseFile $ fromString inFile
       printGpxInfo gpx
       
