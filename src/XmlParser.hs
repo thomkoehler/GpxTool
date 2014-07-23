@@ -2,7 +2,7 @@
 
 {-# LANGUAGE OverloadedStrings #-}
 
-module XmlParser where
+module XmlParser(parseFile) where
 
 import Prelude hiding(FilePath, readFile)
 import Data.Maybe(fromMaybe)
