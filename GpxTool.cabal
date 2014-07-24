@@ -16,7 +16,7 @@ executable GpxTool
                    xml-hamlet >=0.4.0 && <0.5,
                    bytestring >=0.10.0 && <0.11,
                    filepath >=1.3.0 && <1.4
-  ghc-options:     -Wall
+  ghc-options:     -Wall -rtsopts -O2
   other-modules:   
                    Gpx,
                    XmlParser,
