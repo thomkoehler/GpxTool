@@ -9,7 +9,7 @@ import Data.Maybe(fromMaybe)
 import Text.XML
 import Text.Printf(printf)
 import Filesystem.Path.CurrentOS(FilePath)
-import Data.Text(unpack, Text)
+import Data.Text(unpack, Text, strip)
 import Control.Applicative
 
 import qualified Data.Map as M
@@ -24,12 +24,11 @@ parseFile path = do
    return (parseGpx root, doc)
 
 
-gpxName :: Text -> Name
-gpxName localName = Name localName (Just "http://www.topografix.com/GPX/1/1") Nothing
+(<=>) :: Name -> Name -> Bool
+n0 <=> n1 = nameLocalName n0 == nameLocalName n1
 
-gpxxName :: Text -> Name
-gpxxName localName = Name localName (Just "http://www.garmin.com/xmlschemas/GpxExtensions/v3") Nothing
-   
+infix 4 <=>
+
 
 textToDouble :: Text -> Double
 textToDouble = read . unpack
@@ -48,7 +47,7 @@ parseRoutePoint routePointElem =
    RoutePoint
    {
       rteptPoint = parsePoint routePointElem,
-      rteptExtensions = parseExtensions <$> lookupChildElement (gpxName "extensions") routePointElem
+      rteptExtensions = parseExtensions <$> lookupChildElement "extensions" routePointElem
    } 
 
 parseExtensions :: Element -> Extensions
@@ -56,22 +55,22 @@ parseExtensions extensionsElement =
    Extensions
    { 
       extRoutePointExtension = parseRoutePointExtension $ 
-         lookupChildElement1 (gpxxName "RoutePointExtension") extensionsElement
+         lookupChildElement1 "RoutePointExtension" extensionsElement
    }  
    
 parseRoutePointExtension :: Element -> RoutePointExtension
 parseRoutePointExtension routePointExtensionElement = 
    RoutePointExtension
    {
-      rpePoints = map parsePoint $ lookupChildElements (gpxxName "rpt") routePointExtensionElement
+      rpePoints = map parsePoint $ lookupChildElements "rpt" routePointExtensionElement
    }
 
 parseRoute :: Element -> Route
 parseRoute routeElem = 
    Route 
    { 
-      rteName = lookupChildContent (gpxName "name") routeElem, 
-      rtePoints = map parseRoutePoint $ lookupChildElements (gpxName "rtept") routeElem
+      rteName = lookupChildContent "name" routeElem, 
+      rtePoints = map parseRoutePoint $ lookupChildElements "rtept" routeElem
    }
 
 
@@ -79,7 +78,9 @@ parseGpx :: Element -> Gpx
 parseGpx gpxElem = 
    Gpx
    { 
-      gpxRoutes = map parseRoute $ lookupChildElements (gpxName "rte") gpxElem
+      gpxCreator = lookupAttr "creator" gpxElem,
+      gpxVersion = lookupAttr "version" gpxElem,
+      gpxRoutes = map parseRoute $ lookupChildElements "rte" gpxElem
    }
 
 
@@ -93,12 +94,12 @@ lookupAttr name element =
       
 lookupChildElements :: Name -> Element -> [Element]
 lookupChildElements name parentElem =
-   map nodeToElement $ filter filterFun $ elementNodes parentElem
+   map nodeToElement $ filter filterFun $ elementNodes parentElem 
    where
       nodeToElement (NodeElement childElem) = childElem
       nodeToElement _ = undefined
    
-      filterFun (NodeElement childElem) = elementName childElem == name
+      filterFun (NodeElement childElem) = elementName childElem <=> name
       filterFun _ = False
 
    
@@ -119,7 +120,7 @@ lookupChildContent name parentElem = do
    child <- lookupChildElement name parentElem
    lookupContent child
    where
-      lookupContent (Element _ _ [NodeContent content]) = Just content
+      lookupContent (Element _ _ [NodeContent content]) = Just $ strip content
       lookupContent  _ = Nothing
 
       

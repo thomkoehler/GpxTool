@@ -42,7 +42,7 @@ transformFile :: (Gpx -> Gpx) -> String -> String -> IO ()
 transformFile transFun inFile outFile = do
    (gpx, doc) <- parseFile $ fromString inFile
    let tgpx = transFun gpx
-   writeGpx False (documentPrologue doc) (documentEpilogue doc) (fromString outFile) tgpx
+   writeGpx True (documentPrologue doc) (documentEpilogue doc) (fromString outFile) tgpx
    _ <- printf "File '%s' created." outFile
    return ()
 
