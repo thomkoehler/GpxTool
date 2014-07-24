@@ -148,30 +148,32 @@ changeGpx routeNameChange routePointChange (Gpx _ ver routes) =
 
 
 reverseGpx :: Gpx -> Gpx
-reverseGpx = changeGpx (\n -> append n "_reverse") $ map reverseRoutePoint  
+reverseGpx = changeGpx (`append` "_reverse") $ reverse . map reverseRoutePoint  
 
 
 reverseRoutePoint :: RoutePoint -> RoutePoint
 reverseRoutePoint rp@(RoutePoint _ Nothing) = rp
 reverseRoutePoint rp = 
    let
-      (p : ps) = points rp
+      allPoints = points rp
+      pt = last allPoints
+      exPt = take (length allPoints - 1) allPoints
    in
       RoutePoint
       {
-         rteptPoint = p,
+         rteptPoint = pt,
          rteptExtensions = Just Extensions
             {
                extRoutePointExtension = RoutePointExtension
                   {
-                     rpePoints = ps
+                     rpePoints = exPt
                   }
             }
       }
  
 
 flattenGpx :: Gpx -> Gpx
-flattenGpx = changeGpx (\n -> append n "_flatten") $ concatMap flattenRoutePoint  
+flattenGpx = changeGpx (`append` "_flatten") $ concatMap flattenRoutePoint  
    
    
 flattenRoutePoint :: RoutePoint -> [RoutePoint]
