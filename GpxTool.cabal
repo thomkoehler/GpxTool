@@ -23,3 +23,11 @@ executable GpxTool
                    XmlGen,
                    Options
 
+test-suite Test
+  type:            exitcode-stdio-1.0
+  main-is:         Test.hs
+  ghc-options:     -Wall -rtsopts
+  build-depends:   base >= 4, HTF > 0.9
+  hs-source-dirs:  src
+  other-modules:   Gpx
+

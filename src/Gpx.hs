@@ -38,7 +38,7 @@ data Point = Point
       lat :: Double,
       lon :: Double
    } 
-   deriving(Show)
+   deriving(Show, Eq)
 
 
 data Gpx = Gpx
@@ -48,7 +48,7 @@ data Gpx = Gpx
       gpxRoutes :: [Route]
    }
    deriving(Show)
-
+   
 
 data Route = Route
    {
@@ -63,24 +63,32 @@ data RoutePoint = RoutePoint
       rteptPoint :: Point,
       rteptExtensions :: Maybe Extensions 
    }
-   deriving(Show)
+   deriving(Show, Eq)
 
 
 data Extensions = Extensions
    {
       extRoutePointExtension :: RoutePointExtension
    } 
-   deriving(Show)
+   deriving(Show, Eq)
    
    
 data RoutePointExtension = RoutePointExtension
    {
       rpePoints :: [Point] 
    }
-   deriving(Show)
+   deriving(Show, Eq)
    
    
 ----------------------------------------------------------------------------------------------------------------------
+
+instance Eq Gpx where
+   (Gpx _ _ rts0) == (Gpx _ _ rts1) = rts0 == rts1
+   
+   
+instance Eq Route where
+   (Route _ pts0) == (Route _ pts1) = pts0 == pts1    
+
 
 instance PointContainer pc => PointContainer (Maybe pc) where 
    points Nothing = []
