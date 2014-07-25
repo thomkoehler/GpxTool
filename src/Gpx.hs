@@ -163,9 +163,7 @@ reverseRoutePoint :: RoutePoint -> RoutePoint
 reverseRoutePoint rp@(RoutePoint _ Nothing) = rp
 reverseRoutePoint rp = 
    let
-      allPoints = points rp
-      pt = last allPoints
-      exPt = take (length allPoints - 1) allPoints
+      (pt : exPt) = reverse $ points rp 
    in
       RoutePoint
       {
