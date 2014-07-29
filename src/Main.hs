@@ -29,6 +29,8 @@ main = do
    when (FlagFlatten `elem` ops) $
       transformFile reverseGpx inFile $ appendBaseName "_flatten" inFile
       
+   when (FlagSimplify `elem` ops) $
+      transformFile id inFile $ appendBaseName "_simplifiy" inFile
       
    when (FlagInfo `elem` ops) $ do
       (gpx, _) <- parseFile $ fromString inFile
