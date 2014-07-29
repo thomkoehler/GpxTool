@@ -22,6 +22,7 @@ createTestGpx routePoints = Gpx
    {
       gpxCreator = "Test",
       gpxVersion = "1.1",
+      gpxSchemaLocation = "",
       gpxRoutes = 
       [
          Route

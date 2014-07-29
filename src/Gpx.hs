@@ -45,6 +45,7 @@ data Gpx = Gpx
    {
       gpxCreator :: Text,
       gpxVersion :: Text,
+      gpxSchemaLocation :: Text,
       gpxRoutes :: [Route]
    }
    deriving(Show)
@@ -83,7 +84,7 @@ data RoutePointExtension = RoutePointExtension
 ----------------------------------------------------------------------------------------------------------------------
 
 instance Eq Gpx where
-   (Gpx _ _ rts0) == (Gpx _ _ rts1) = rts0 == rts1
+   (Gpx _ _ _ rts0) == (Gpx _ _ _ rts1) = rts0 == rts1
    
    
 instance Eq Route where
@@ -148,8 +149,8 @@ printGpxInfo :: Gpx -> IO ()
 printGpxInfo = printInfo 0
 
 changeGpx :: (Text -> Text) -> ([RoutePoint] -> [RoutePoint]) -> Gpx -> Gpx
-changeGpx routeNameChange routePointChange (Gpx _ ver routes) = 
-   Gpx "GpxTool" ver $ map (changePoints .changeName) routes
+changeGpx routeNameChange routePointChange (Gpx _ ver schemaLocation routes) = 
+   Gpx "GpxTool" ver schemaLocation $ map (changePoints .changeName) routes
       where
          changeName (Route n p) = Route (fmap routeNameChange n) p
          changePoints (Route n p) = Route n $ routePointChange p

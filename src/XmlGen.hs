@@ -19,7 +19,9 @@ import Gpx
 -----------------------------------------------------------------------------------------------------------------------
 
 xmlGpx :: Gpx -> Element
-xmlGpx gpx = Element "gpx" (M.fromList [("creator", gpxCreator gpx), ("version", gpxVersion gpx)])
+xmlGpx gpx = Element "gpx" (M.fromList [("creator", gpxCreator gpx), 
+                                        ("version", gpxVersion gpx), 
+                                        ("schemaLocation", gpxSchemaLocation gpx)])
    [xml|
       $forall route <- gpxRoutes gpx
          <rte>

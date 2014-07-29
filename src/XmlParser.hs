@@ -80,6 +80,7 @@ parseGpx gpxElem =
    { 
       gpxCreator = lookupAttr "creator" gpxElem,
       gpxVersion = lookupAttr "version" gpxElem,
+      gpxSchemaLocation = lookupAttr "schemaLocation" gpxElem,
       gpxRoutes = map parseRoute $ lookupChildElements "rte" gpxElem
    }
 
