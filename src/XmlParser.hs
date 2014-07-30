@@ -24,6 +24,10 @@ parseFile path = do
    return (parseGpx root, doc)
 
 
+xsiName :: Text -> Name
+xsiName localName = Name localName (Just "http://www.w3.org/2001/XMLSchema-instance") Nothing
+
+
 (<=>) :: Name -> Name -> Bool
 n0 <=> n1 = nameLocalName n0 == nameLocalName n1
 
@@ -80,7 +84,7 @@ parseGpx gpxElem =
    { 
       gpxCreator = lookupAttr "creator" gpxElem,
       gpxVersion = lookupAttr "version" gpxElem,
-      gpxSchemaLocation = lookupAttr "schemaLocation" gpxElem,
+      gpxSchemaLocation = lookupAttr (xsiName "schemaLocation") gpxElem,
       gpxRoutes = map parseRoute $ lookupChildElements "rte" gpxElem
    }
 
